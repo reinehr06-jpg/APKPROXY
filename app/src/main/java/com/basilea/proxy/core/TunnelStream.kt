@@ -3,6 +3,7 @@ package com.basilea.proxy.core
 import android.util.Log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
+import kotlin.coroutines.coroutineContext
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.concurrent.atomic.AtomicBoolean
@@ -56,7 +57,7 @@ class TunnelStream(
         val buffer = ByteArray(16384)
         try {
             val input = socket.getInputStream()
-            while (isActive && !closed.get()) {
+            while (coroutineContext.isActive && !closed.get()) {
                 val bytesRead = input.read(buffer)
                 if (bytesRead == -1) break
                 
@@ -87,7 +88,7 @@ class TunnelStream(
     }
 
     private suspend fun monitorLoop() {
-        while (isActive && !closed.get()) {
+        while (coroutineContext.isActive && !closed.get()) {
             val idleTime = System.currentTimeMillis() - lastActivityAt.get()
             if (idleTime > IDLE_TIMEOUT_MS) {
                 Log.w(TAG, "[$streamId] Idle for ${idleTime}ms, closing")

@@ -1,6 +1,10 @@
 package com.basilea.proxy.core
 
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import okio.ByteString
 import okhttp3.*
 import org.json.JSONObject
@@ -20,6 +24,7 @@ class SilverTunnelClient(
     
     private var webSocket: WebSocket? = null
     private val tunnelStreams = ConcurrentHashMap<String, TunnelStream>()
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     
     companion object {
         private const val TAG = "SilverTunnelClient"
@@ -83,7 +88,7 @@ class SilverTunnelClient(
                         onStreamClosed = { id, reason -> sendTunnelClosed(id, reason) }
                     )
                     
-                    kotlinx.coroutines.GlobalScope.launch {
+                    scope.launch {
                         if (stream.open()) {
                             tunnelStreams[streamId] = stream
                         } else {

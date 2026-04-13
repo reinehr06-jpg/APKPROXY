@@ -6,17 +6,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.fillMaxSize
 import com.basilea.proxy.core.AuthManager
 import com.basilea.proxy.service.ProxyService
 import kotlinx.coroutines.launch
@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF4C1D95)),
                     elevation = CardDefaults.cardElevation(defaultElevation = 20.dp)
                 ) {
-                    Box(fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text("B", fontSize = 60.sp, fontWeight = FontWeight.Black, color = Color.White)
                     }
                 }
