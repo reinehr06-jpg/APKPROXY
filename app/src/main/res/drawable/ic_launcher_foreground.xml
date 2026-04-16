@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Outer glowing ring simulation -->
+    <path
+        android:strokeColor="#06B6D4"
+        android:strokeWidth="1.5"
+        android:pathData="M54,20 A34,34 0 1,0 54,88 A34,34 0 1,0 54,20" />
+
+    <!-- Outer glowing ring simulation second -->
+    <path
+        android:strokeColor="#A855F7"
+        android:strokeWidth="1.5"
+        android:pathData="M54,24 A30,30 0 1,0 54,84 A30,30 0 1,0 54,24" />
+
+    <!-- Glowing backdrop square box -->
+    <path
+        android:fillColor="#3B0764"
+        android:pathData="M38,38 h32 v32 h-32 z" />
+
+    <!-- The letter 'B' -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 45,43 L 55,43 C 60,43 62,44 62,48 C 62,51 60,53 55,53 L 45,53 Z M 45,58 L 57,58 C 63,58 65,59 65,63 C 65,67 63,69 57,69 L 45,69 Z M 41,38 L 41,74 L 56,74 C 66,74 70,70 70,64 C 70,59 66,57 61,56 C 65,55 68,52 68,48 C 68,41 62,38 53,38 Z" />
+
+</vector>

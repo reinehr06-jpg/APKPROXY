@@ -24,7 +24,7 @@ class AuthManager(private val context: Context) {
         private const val AUTH_ENDPOINT = "https://api.basileavendor.com/api/proxy/auth" // Ajuste conforme necessário
     }
 
-    suspend fun authenticate(whatsapp: String): AuthResponse = withContext(Dispatchers.IO) {
+    suspend fun authenticate(whatsapp: String, document: String): AuthResponse = withContext(Dispatchers.IO) {
         try {
             val url = URL(AUTH_ENDPOINT)
             val conn = url.openConnection() as HttpURLConnection
@@ -34,6 +34,7 @@ class AuthManager(private val context: Context) {
 
             val jsonOutput = JSONObject().apply {
                 put("whatsapp", whatsapp)
+                put("document", document)
             }.toString()
 
             conn.outputStream.use { it.write(jsonOutput.toByteArray()) }
