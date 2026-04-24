@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.core.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +32,14 @@ import com.basilea.proxy.core.AuthManager
 import com.basilea.proxy.core.UpdateManager
 import com.basilea.proxy.core.UpdateInfo
 import com.basilea.proxy.service.ProxyService
+import com.basilea.proxy.ui.checkin.CheckinConnectScreen
+import com.basilea.proxy.ui.checkin.QRScannerScreen
+import com.basilea.proxy.ui.checkin.CheckinConnectViewModel
+import com.basilea.proxy.ui.checkin.QRScannerViewModel
+import com.basilea.proxy.ui.tickets.MyTicketsScreen
+import com.basilea.proxy.ui.tickets.TicketQRScreen
+import com.basilea.proxy.ui.tickets.MyTicketsViewModel
+import com.basilea.proxy.ui.tickets.TicketQRViewModel
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.launch
@@ -78,7 +87,35 @@ class MainActivity : ComponentActivity() {
 
                     val churchName = authManager.getChurchName()
                     if (churchName != null) {
-                        DashboardScreen(churchName)
+                        var currentScreen by remember { mutableStateOf("dashboard") }
+                        var selectedTicketId by remember { mutableStateOf("") }
+                        
+                        when (currentScreen) {
+                            "dashboard" -> DashboardScreen(
+                                churchName = churchName,
+                                onNavigateToCheckin = { currentScreen = "checkin" },
+                                onNavigateToTickets = { currentScreen = "tickets" }
+                            )
+                            "checkin" -> CheckinConnectScreen_wrapper(
+                                onBack = { currentScreen = "dashboard" },
+                                onConnected = { currentScreen = "qrscanner" }
+                            )
+                            "qrscanner" -> QRScannerScreen_wrapper(
+                                onBack = { currentScreen = "dashboard" },
+                                onNavigateToDashboard = { currentScreen = "checkin" }
+                            )
+                            "tickets" -> MyTicketsScreen_wrapper(
+                                onBack = { currentScreen = "dashboard" },
+                                onTicketClick = { ticketId ->
+                                    selectedTicketId = ticketId
+                                    currentScreen = "ticketqr"
+                                }
+                            )
+                            "ticketqr" -> TicketQRScreen_wrapper(
+                                ticketId = selectedTicketId,
+                                onBack = { currentScreen = "tickets" }
+                            )
+                        }
                     } else {
                         LoginScreen()
                     }
@@ -172,7 +209,7 @@ class MainActivity : ComponentActivity() {
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = NeonPurple)
                     ) {
-                        Text("INICIAR DOWNLOAD", fontWeight = FontWeight.Bold, fontSize = 14.sp, letterSpacing = 1.dp)
+                        Text("INICIAR DOWNLOAD", fontWeight = FontWeight.Bold, fontSize = 14.sp, letterSpacing = 1.sp)
                     }
                 }
             }
@@ -476,7 +513,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun DashboardScreen(churchName: String) {
+    fun DashboardScreen(churchName: String, onNavigateToCheckin: () -> Unit, onNavigateToTickets: () -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -505,7 +542,53 @@ class MainActivity : ComponentActivity() {
                     
                     Text("ROUTING_STATUS:", color = CyberCyan, fontSize = 11.sp, letterSpacing = 1.5.sp)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("OPTIMIZED / SECURE", color = Color(0xFF10B981), fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.dp)
+                    Text("OPTIMIZED / SECURE", color = Color(0xFF10B981), fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onNavigateToCheckin),
+                colors = CardDefaults.cardColors(containerColor = NeonPurple.copy(alpha = 0.2f)),
+                border = androidx.compose.foundation.BorderStroke(1.dp, NeonPurple),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(20.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("📱", fontSize = 24.sp)
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column {
+                        Text("Check-in de Ingressos", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text("Escaneie QR codes", color = Color.Gray, fontSize = 12.sp)
+                    }
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onNavigateToTickets),
+                colors = CardDefaults.cardColors(containerColor = CyberCyan.copy(alpha = 0.2f)),
+                border = androidx.compose.foundation.BorderStroke(1.dp, CyberCyan),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(20.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("🎫", fontSize = 24.sp)
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column {
+                        Text("Meus Ingressos", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text("Acesse seusingressos", color = Color.Gray, fontSize = 12.sp)
+                    }
                 }
             }
             
@@ -558,8 +641,62 @@ fun PreviewDashboardScreen() {
             Box(modifier = Modifier.fillMaxSize()) {
                 val mockActivity = MainActivity()
                 mockActivity.TechBackground()
-                mockActivity.DashboardScreen(churchName = "Igreja Central (Mock)")
+                mockActivity.DashboardScreen(
+                    churchName = "Igreja Central (Mock)",
+                    onNavigateToCheckin = {},
+                    onNavigateToTickets = {}
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun CheckinConnectScreen_wrapper(onBack: () -> Unit, onConnected: () -> Unit) {
+    val viewModel = remember { CheckinConnectViewModel() }
+    
+    Box(modifier = Modifier.fillMaxSize().background(DeepMidnight)) {
+        CheckinConnectScreen(
+            viewModel = viewModel,
+            onConnected = onConnected
+        )
+    }
+}
+
+@Composable
+private fun QRScannerScreen_wrapper(onBack: () -> Unit, onNavigateToDashboard: () -> Unit) {
+    val viewModel = remember { QRScannerViewModel() }
+    
+    Box(modifier = Modifier.fillMaxSize()) {
+        QRScannerScreen(
+            viewModel = viewModel,
+            eventName = "Evento Teste",
+            onNavigateToDashboard = onNavigateToDashboard
+        )
+    }
+}
+
+@Composable
+private fun MyTicketsScreen_wrapper(onBack: () -> Unit, onTicketClick: (String) -> Unit) {
+    val viewModel = remember { MyTicketsViewModel() }
+    
+    Box(modifier = Modifier.fillMaxSize().background(DeepMidnight)) {
+        MyTicketsScreen(
+            viewModel = viewModel,
+            onTicketClick = onTicketClick
+        )
+    }
+}
+
+@Composable
+private fun TicketQRScreen_wrapper(ticketId: String, onBack: () -> Unit) {
+    val viewModel = remember { TicketQRViewModel() }
+    
+    Box(modifier = Modifier.fillMaxSize()) {
+        TicketQRScreen(
+            viewModel = viewModel,
+            ticketId = ticketId,
+            onBack = onBack
+        )
     }
 }
