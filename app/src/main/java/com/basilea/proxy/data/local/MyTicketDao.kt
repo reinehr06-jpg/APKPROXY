@@ -15,10 +15,10 @@ interface MyTicketDao {
     suspend fun getTicket(ticketId: String): MyLocalTicketEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTickets(tickets: List<MyLocalTicketEntity>)
+    suspend fun insertTicket(ticket: MyLocalTicketEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTicket(ticket: MyLocalTicketEntity)
+    suspend fun insertTickets(tickets: List<MyLocalTicketEntity>)
 
     @Query("DELETE FROM my_tickets WHERE ticketId = :ticketId")
     suspend fun deleteTicket(ticketId: String)
